@@ -1,7 +1,11 @@
-import { SafeAreaView, Text, Stack, View, ScrollView, Button, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from 'react';
+import { SafeAreaView, Text, Stack, View, ScrollView, Button, StyleSheet, Dimensions } from 'react-native';
+import { useRouter } from "expo-router";
 import { DataGroup, Header, SubHeader } from '../../../components';
 import { MaterialIcons } from '@expo/vector-icons';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import groupData from '../../../utils/groupData';
 
 const styles = StyleSheet.create({
     btn : {
@@ -12,169 +16,25 @@ const styles = StyleSheet.create({
     }
 })
 
+
 const DataPage = () => {
     const router = useRouter()
-    const local = useLocalSearchParams();
+    
+    const [entryData, setEntryData] = useState([]);
 
-    let data = [
-        {
-            date: "13/01/2023",
-            transactions : [
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                
-            ]
-        },
-        {
-            date: "14/01/2023",
-            transactions : [
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },                
-            ]
-        },
-        ,
-        {
-            date: "22/01/2023",
-            transactions : [
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "incoming",
-                    amount: "$122",
-                    category: "salary"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },  
-                {
-                    type: "incoming",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },
-                {
-                    type: "outgoing",
-                    amount: "$12",
-                    category: "food"
-                },              
-            ]
-        }        
-    ]
+    const getData = async () => {
+        try {
+            let value = await AsyncStorage.getItem("entryData");
+            setEntryData(groupData(value));
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        getData();
+    }, [])
+
 
     return (
         <SafeAreaView>             
@@ -188,13 +48,14 @@ const DataPage = () => {
                 }}                
             />
             <ScrollView>
-                <Header text={"Your Data"} />                
-                {data?.map((dataGroup) => (
+                <Header text={"Your Data"} /> 
+                {entryData.map((dataGroup) => (
                     <View>
                         <SubHeader text={dataGroup.date} />
                         <DataGroup data={dataGroup.transactions} />
                     </View>
                 ))}
+
             </ScrollView>
         </SafeAreaView>
     )

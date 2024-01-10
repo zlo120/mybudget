@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { ScrollView, TextInput, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import DataEntry from '../dataentry/DataEntry';
 
 import styles from './AddEntry.style';
+
+import formatDate from '../../../utils/formatDate';
 
 const AddEntry = () => {
     const [type, setType] = useState("income");
@@ -31,6 +33,44 @@ const AddEntry = () => {
     };
     
     const router = useRouter()
+
+    const addEntry = async ({amount, category, type, date}) => {
+        try {
+            let formattedDate = formatDate(date);
+            let value = await AsyncStorage.getItem("entryData");
+
+            value = JSON.parse(value);
+
+            const obj = {
+                date: formattedDate,
+                type: type,
+                amount : amount,
+                category: category
+            }
+
+            // await AsyncStorage.removeItem("entryData");
+
+            if (value !== null) {
+                value.push(obj)
+                await AsyncStorage.setItem(
+                    "entryData",
+                    JSON.stringify(value)
+                );
+            }
+            // brand new (no data exists yet)
+            else {
+                await AsyncStorage.setItem(
+                    "entryData",                    
+                    JSON.stringify([
+                        obj
+                    ])
+                                       
+                );
+            }
+        } catch (error) {
+            console.log(`Error: ${error}`);
+        }
+    }
 
     return (
         <ScrollView
@@ -71,14 +111,15 @@ const AddEntry = () => {
             <TouchableOpacity
                 activeOpacity={.7}
                 style={styles.btn}
-                onPress={() => {
-                    router.push({ pathname: "/displayData", params: { 
-                            amount: amount, 
-                            category: category,
-                            type: type,
-                            date: date
+                onPress={async () => {
+                    await addEntry(
+                        {
+                            amount,
+                            category,
+                            type,
+                            date
                         }
-                    });
+                    )
                 }}
             >
                 <Text style={styles.btnText}>Submit</Text>

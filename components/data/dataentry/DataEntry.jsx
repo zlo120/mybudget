@@ -8,7 +8,7 @@ const DataEntry = ({ type, amount, category }) => {
         >
             <View style={styles.dataEntryStyle(type)}>
                 <Text style={styles.categoryStyle}>{type === "outgoing" ? "Outgoing - " : "Incoming - "}{category}</Text>
-                <Text style={styles.amountStyle}>{amount}</Text>
+                <Text style={styles.amountStyle}>${amount}</Text>
             </View>
         </View>
     )
